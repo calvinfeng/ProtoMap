@@ -8,7 +8,7 @@ const farmersReducer = (state = {}, action) => {
         id: action.id,
         name: action.name,
         paid: false
-      }
+      };
       nextState[action.id] = farmer;
       return nextState;
 
