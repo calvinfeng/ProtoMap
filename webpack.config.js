@@ -2,7 +2,7 @@ var path = require("path");
 
 module.exports = {
   context: __dirname,
-  entry: "./index.jsx",
+  entry: "./components/App.jsx",
   output: {
     path: "./",
     filename: "index.bundle.js"

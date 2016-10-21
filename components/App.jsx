@@ -1,0 +1,30 @@
+import React                            from 'react';
+import ReactDOM                         from 'react-dom';
+import thunkMiddleware                  from 'redux-thunk';
+import { Provider }                     from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+
+// Reducers
+import rootReducer     from '../reducers/rootReducer';
+
+// Components
+import SearchContainer from './SearchContainer';
+import DrawingPad      from './DrawingPad';
+
+class SpotifyApp extends React.Component {
+  render() {
+    return (
+      <div>
+        <SearchContainer/>
+        <DrawingPad/>
+      </div>
+
+    );
+  }
+}
+
+const store = createStore(rootReducer, applyMiddleware(thunkMiddleware));
+document.addEventListener("DOMContentLoaded", function() {
+  ReactDOM.render(<Provider store={store}><SpotifyApp/></Provider>,
+    document.getElementById("application"));
+});
