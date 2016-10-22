@@ -214,7 +214,7 @@ export default class Renderer extends EventEmitter {
     view.center = rectangle.center;
     view.zoom = Math.min(
       view.viewSize.height / rectangle.height,
-      view.viewSize.width / rectangle.width;
+      view.viewSize.width / rectangle.width
     )
   }
 

@@ -10,6 +10,7 @@ import rootReducer     from '../reducers/rootReducer';
 // Components
 import SearchContainer from './SearchContainer';
 import DrawingPad      from './DrawingPad';
+import Map             from './Map';
 
 class SpotifyApp extends React.Component {
   render() {
@@ -17,6 +18,7 @@ class SpotifyApp extends React.Component {
       <div>
         <SearchContainer/>
         <DrawingPad/>
+        <Map/>
       </div>
 
     );

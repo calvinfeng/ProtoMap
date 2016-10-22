@@ -67,10 +67,9 @@ export default class NodeView extends EventEmitter2 {
     }
     this.triggerUpdateOnMouseUp = false;
   }
-}
-
-remove() {
-  this.modelClass.off('change', this.handleChange);
-  this.viewGroup.remove();
-  this.removeAllListeners();
+  remove() {
+    this.modelClass.off('change', this.handleChange);
+    this.viewGroup.remove();
+    this.removeAllListeners();
+  }
 }

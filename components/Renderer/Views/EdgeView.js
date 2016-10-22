@@ -68,34 +68,72 @@ export default class EdgeView extends EventEmitter2 {
     this.sourceNodeModel.on('change', this.handleChange);
     this.targetNodeModel.on('change', this.handleChange);
   }
+
+  handleChange() {
+    const sourceNodePoint = this.sourceNodeModel.point;
+    const targetNodePoint = this.targetNodeModel.point;
+    const linePathVector = targetNodePoint.subtract(sourceNodePoint).normalize(0.3);
+    const arrowHeadPoint = targetNodePoint.subtract(linePathVector.normalize(0.27));
+    const edgeLength = targetNodePoint.subtract(sourceNodePoint).length;
+    const inflationPathPosition = calculateMidPoint(sourceNodePoint, targetNodePoint);
+
+    this.inflationPath.position = inflationPathPosition;
+    this.inflationPath.rotation = 0;
+    this.inflationPath.scale(new Point(edgeLength / this.edgeLength, 1));
+    this.edgeLength = edgeLength;
+    this.inflationPath.rotation = linePathVector.angle;
+
+    this.linePath.removeSegments();
+    this.linePath.addSegments([
+      this.sourceNodeModel.point,
+      targetNodePoint.subtract(linePathVector.normalize(0.3))
+    ]);
+
+    this.arrowPath.removeSegments();
+    this.arrowPath.addSegments([
+      arrowHeadPoint.add(linePathVector.rotate(135)),
+      arrowHeadPoint,
+      arrowHeadPoint.add(linePathVector.rotate(-135))
+    ]);
+  }
+
+  handleClick(e) {
+    if ((!e.modifiers.control && !e.modifiers.command) || e.delta.length > 0) {
+      return;
+    }
+    e.stop();
+    this.edgeModel.destroy();
+  }
+
+  handleMouseDrag(e) {
+    if (!e.modifiers.shift) {
+      return;
+    }
+    e.stop();
+    this.handleMouseLeave();
+    this.triggerUpdateOnMouseUp = true;
+    const origin = this.viewGroup.globalToLocal(new Point(0, 0));
+    const delta = this.viewGroup.globalToLocal(e.delta).subtract(origin);
+    const sourcePoint = this.sourceNodeModel.point.add(delta);
+    const targetPoint = this.targetNodeModel.point.add(delta);
+    this.sourceNodeModel.setProps({ point: sourcePoint });
+    this.targetNodeModel.setProps({ point: targetPoint });
+  }
+
+  handleMouseUp() {
+    if (e.modifiers.shift || e.event.buttons > 0) {
+      return;
+    }
+    const mousePoint = this.viewGroup.globalToLocal(e.point);
+    this.nearestPointOnPath = this.linePath.getNearestPoint(mousePoint);
+    this.edgeSplitNode = Path.Circle(Object.assign(edgeSplitNodeAttributes, {
+      center: this.nearestPointOnPath
+    }));
+    this.viewGroup.addChild(this.edgeSplitNode);
+    this.edgeSplitNode.sendToBack();
+  }
+
+  handleMouseMove(e) {
+    console.log(e);
+  }
 }
-
-handleChange() {
-  const sourceNodePoint = this.sourceNodeModel.point;
-  const targetNodePoint = this.targetNodeModel.point;
-  const linePathVector = targetNodePoint.subtract(sourceNodePoint).normalize(0.3);
-  const arrowHeadPoint = targetNodePoint.subtract(linePathVector.normalize(0.27));
-  const edgeLength = targetNodePoint.subtract(sourceNodePoint).length;
-  const inflationPathPosition = calculateMidPoint(sourceNodePoint, targetNodePoint);
-
-  this.inflationPath.position = inflationPathPosition;
-  this.inflationPath.rotation = 0;
-  this.inflationPath.scale(new Point(edgeLength / this.edgeLength, 1));
-  this.edgeLength = edgeLength;
-  this.inflationPath.rotation = linePathVector.angle;
-
-  this.linePath.removeSegments();
-  this.linePath.addSegments([
-    this.sourceNodeModel.point,
-    targetNodePoint.subtract(linePathVector.normalize(0.3))
-  ]);
-
-  this.arrowPath.removeSegments();
-  this.arrowPath.addSegments([
-    arrowHeadPoint.add(linePathVector.rotate(135)),
-    arrowHeadPoint,
-    arrowHeadPoint.add(linePathVector.rotate(-135))
-  ]);
-}
-
-handleClick(e)

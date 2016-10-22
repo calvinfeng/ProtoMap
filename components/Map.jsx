@@ -107,8 +107,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    dispatchFetchDefaultMapName: () => dispatch(fetchDefaultMapName());
-    dispatchFetchMapImage: () => dispatch(fetchMapImage());
+    dispatchFetchDefaultMapName: () => dispatch(fetchDefaultMapName()),
+    dispatchFetchMapImage: () => dispatch(fetchMapImage())
   };
 }
 
