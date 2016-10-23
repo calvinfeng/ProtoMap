@@ -27,6 +27,10 @@ function calculateMidPoint(p1, p2) { // get rid of this after helpers.getMidPoin
   );
 }
 
+function isHotKeyActiveForEdgeDrag(e) {
+  return (e.modifiers.command || e.modifiers.control) && e.modifiers.shift;
+}
+
 export default class EdgeView extends EventEmitter2 {
   constructor(parentGroup, edgeModel, sourceNodeModel, targetNodeModel) {
     super({ maxListeners: 0 });
@@ -41,7 +45,7 @@ export default class EdgeView extends EventEmitter2 {
     this.triggerUpdateOnMouseUp = false;
     this.edgeModel = edgeModel;
     this.sourceNodeModel = sourceNodeModel;
-    this,targetNodeModel = targetNodeModel;
+    this.targetNodeModel = targetNodeModel;
     this.edgeLength = 1;
 
     this.viewGroup = new Group();
@@ -120,7 +124,7 @@ export default class EdgeView extends EventEmitter2 {
     this.targetNodeModel.setProps({ point: targetPoint });
   }
 
-  handleMouseUp() {
+  handleMouseUp(e) {
     if (e.modifiers.shift || e.event.buttons > 0) {
       return;
     }
@@ -134,6 +138,32 @@ export default class EdgeView extends EventEmitter2 {
   }
 
   handleMouseMove(e) {
-    console.log(e);
+    if (!this.edgeSplitNode) {
+      return;
+    } else if (isHotKeyActiveForEdgeDrag(e)) {
+      this.handleMouseLeave();
+      return;
+    }
+    const mousePoint = this.viewGroup.globalToLocal(e.point);
+    const nearestPointOnPath = this.linePath.getNearestPoint(mousePoint);
+    const delta = nearestPointOnPath.subtract(this.nearestPointOnPath);
+    this.nearestPointOnPath = nearestPointOnPath;
+    this.edgeSplitNode.translate(delta);
+  }
+
+  handleMouseLeave() {
+    if (!this.edgeSplitNode) {
+      return;
+    }
+    this.edgeSplitNode.remove();
+    this.nearestPointOnPath = null;
+    this.edgeSplitNode = null;
+  }
+
+  remove() {
+    this.sourceNodeModel.off('change', this.handleChange);
+    this.targetNodeModel.off('change', this.handleChange);
+    this.viewGroup.remove();
+    this.removeAllListeners();
   }
 }
