@@ -217,7 +217,7 @@ export default class Renderer extends EventEmitter {
     view.zoom = Math.min(
       view.viewSize.height / rectangle.height,
       view.viewSize.width / rectangle.width
-    )
+    );
   }
 
   changeZoom(delta, point) {
@@ -244,7 +244,7 @@ export default class Renderer extends EventEmitter {
     return (model) => {
       collection.addModel(model);
       this.handleUpdateAnnotationData();
-    }
+    };
   }
 
   getAddAreaHandler(RectangleViewFactory, PolygonViewFactor, areaViewsGroup, areaViews, collection) {
@@ -260,7 +260,7 @@ export default class Renderer extends EventEmitter {
         collection.removeModel(id);
         this.handleUpdateAnnotationData();
       });
-    }
+    };
   }
 
   getRemoveAreaHandler(areaViews) {
@@ -268,7 +268,7 @@ export default class Renderer extends EventEmitter {
       const view = areaViews[model.id];
       view.remove();
       delete areaViews[model.id];
-    }
+    };
   }
 
   handleAddNode(nodeModel) {
@@ -283,7 +283,7 @@ export default class Renderer extends EventEmitter {
       });
       this.nodeCollection.removeModel(id);
       this.handleUpdateAnnotationData();
-    })
+    });
   }
 
   handleRemoveNode(nodeModel) {
