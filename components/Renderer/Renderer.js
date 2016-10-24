@@ -20,6 +20,8 @@ import createRectangleForKeepoutArea     from './Views/createRectangleForKeepout
 import createPolygonForKeepoutArea       from './Views/createPolygonForKeepoutArea';
 import NodeView                          from './Views/NodeView';
 import EdgeView                          from './Views/EdgeView';
+
+import CreateLanesTool                   from './Tools/CreateLanesTool';
 import CreateAreaRectangleTool           from './Tools/CreateAreaRectangleTool';
 import CreateAreaPolygonTool             from './Tools/CreateAreaPolygonTool';
 import { freeAreaGuideAttributes }       from './attributes';
