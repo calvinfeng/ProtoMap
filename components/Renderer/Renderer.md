@@ -1,6 +1,29 @@
 # Models
 
+## AreaModel
+### Methods
+* `constructor(data)`
+* `setProps({ points })`
+* `destroy()`
+  * This should emit 'destroy' to Renderer and then renderer will remove the model from collections
+* `toJSON()`
+
+## EdgeModel
+### Methods
+* `constructor(data)`
+* `setProps({ sourceId, targetId })`
+* `destroy()`
+* `toJSON()`
+
+## NodeModel
+### Methods
+* `constructor(data)`
+* `setProps({ point })`
+* `destroy()`
+* `toJSON()`
+
 # Views
+
 ## NodeView
 ### Instance methods
 * `constructor(parentGroup, model)`
@@ -55,6 +78,7 @@
 ## AreaPolygonView
 ### Instance methods
 __Question__: What are split handle and corner handle?
+
 * `constructor(parentGroup, model, attributes)`
 * `addCornerHandles(points)`
 * `replaceCornerHandles(points)`
@@ -83,7 +107,26 @@ __Question__: What are split handle and corner handle?
 
 ## AreaRectangleView
 ### Instance methods
-
+* `constructor(parentGroup, model, attributes)`
+* `handleChange(points)`
+* `handleClick(e)`
+* `handleMouseDragForViewGroup(e)`
+  * It drags everything
+* `handleMouseDragForCornerHandleA(e)`
+  * Obviously this drags the upper left corner
+* `handleMouseDragForCornerHandleB(e)`
+  * This drags the upper right corner
+* `handleMouseDragForCornerHandleC(e)`
+  * This drags the lower right corner
+* `handleMouseDragForCornerHandleD(e)`
+  * This drags the lower left corner
+* `handleMouseUp()`
+  * It should emit update to back end
+* `remove()`
+  * Remove listener to model
+  * Remove view group
+  * Remove every listener
+  
 # Collections
 It takes in a model class and construct a set of models of that class from raw data
 from the back end

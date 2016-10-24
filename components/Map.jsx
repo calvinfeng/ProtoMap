@@ -4,6 +4,7 @@ import React       from 'react';
 import Renderer    from './Renderer/Renderer';
 import Mousetrap   from 'mousetrap';
 
+import { fetchDefaultMapName, fetchMapImage } from '../actions/mapActions';
 import { connect } from 'react-redux';
 
 class Map extends React.Component {
@@ -12,7 +13,7 @@ class Map extends React.Component {
     super(props);
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleUpdateAnnotationData = this.handleUpdateAnnotationData.bind(this);
-    this.handleEnableFreeAreaRectangleTool = this.handleEnableFreeAreaRectangleTool.bind(this);
+    this.handleEnableCreateFreeAreaRectangleTool = this.handleEnableCreateFreeAreaRectangleTool.bind(this);
     this.handleEnableCreateFreeAreaPolygonTool = this.handleEnableCreateFreeAreaPolygonTool.bind(this);
     this.handleEnableCreateKeepoutAreaRectangleTool = this.handleEnableCreateKeepoutAreaRectangleTool.bind(this);
     this.handleEnableCreateKeepoutAreaPolygonTool = this.handleEnableCreateKeepoutAreaPolygonTool.bind(this);
@@ -20,24 +21,22 @@ class Map extends React.Component {
   }
 
   componentWillMount() {
-    this.props.dispatchFetchDefaultMapName();
+    //this.props.dispatchFetchDefaultMapName();
     window.addEventListener('resize', this.handleWindowResize);
   }
 
   componentDidMount() {
-    if (this.props.mapId) {
-      this.props.dispatchFetchMapImage(this.props.mapId);
-      this.renderer = new Renderer(this.refs.canvas, this.handleUpdateAnnotationData);
-    }
+    this.renderer = new Renderer(this.refs.canvas, this.handleUpdateAnnotationData);
     Mousetrap.bind('0', this.handleEnableViewControlsTool);
     Mousetrap.bind('1', this.handleEnableCreateFreeAreaRectangleTool);
     Mousetrap.bind('2', this.handleEnableCreateFreeAreaPolygonTool);
     Mousetrap.bind('3', this.handleEnableCreateKeepoutAreaRectangleTool);
     Mousetrap.bind('4', this.handleEnableCreateKeepoutAreaPolygonTool);
+    this.props.dispatchFetchMapImage();
   }
 
   componentWillReceiveProps(nextProps) {
-    //Doesn't really need to do anything
+    this.renderer.setVisualizationMapImage(nextProps.mapImage);
   }
 
   componentWillUnmount() {
@@ -55,24 +54,28 @@ class Map extends React.Component {
   }
 
   handleEnableCreateFreeAreaRectangleTool() {
+    console.log("Enabled free area rectangle tool");
     if (this.renderer) {
       this.renderer.enableCreateFreeAreaRectangleTool();
     }
   }
 
   handleEnableCreateFreeAreaPolygonTool() {
+    console.log("Enabled free area polygon tool");
     if (this.renderer) {
       this.renderer.enableCreateFreeAreaPolygonTool();
     }
   }
 
   handleEnableCreateKeepoutAreaRectangleTool() {
+    console.log("Enabled keepout area rectangle tool")
     if (this.renderer) {
       this.renderer.enableCreateKeepoutAreaRectangleTool();
     }
   }
 
   handleEnableCreateKeepoutAreaPolygonTool() {
+    console.log("Enabled keepout area polygon tool")
     if (this.renderer) {
       this.renderer.enableCreateKeepoutAreaPolygonTool();
     }
@@ -86,7 +89,7 @@ class Map extends React.Component {
 
   handleUpdateAnnotationData(annotationData) {
     const mapData = { annotations: annotationData };
-    return this.props.dispatchMapDataUpdate(this.props.mapId, mapData);
+    //return this.props.dispatchMapDataUpdate(this.props.mapId, mapData);
   }
 
   render() {
@@ -100,8 +103,8 @@ class Map extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    mapId: state.mapId,
-    mapImage: state.mapImage
+    mapId: state.maps.mapId,
+    mapImage: state.maps.mapImage
   };
 }
 

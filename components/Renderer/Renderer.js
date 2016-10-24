@@ -8,7 +8,7 @@ import uuid             from 'node-uuid';
 import EventEmitter     from 'eventemitter2';
 
 // Fetch
-import Collection                        from './Collections';
+import Collection                        from './Collections/Collection';
 
 import AreaModel                         from './Models/AreaModel';
 import NodeModel                         from './Models/NodeModel';
@@ -57,6 +57,9 @@ export default class Renderer extends EventEmitter {
     this.scope.settings.insertItems = false;
     this.scope.setup(this.canvasElement);
 
+    this.project = this.scope.project;
+    this.project.activate();
+
     // setup group structure
     this.mainGroup = new Group();
     this.project.activeLayer.addChild(this.mainGroup);
@@ -102,7 +105,7 @@ export default class Renderer extends EventEmitter {
     // keepout area collections
     this.keepoutAreaCollection = new Collection(AreaModel);
     this.handleAddKeepoutArea = this.getAddAreaHandler(
-      createRectangleForFreeArea,
+      createRectangleForKeepoutArea,
       createPolygonForKeepoutArea,
       this.keepoutAreaGroup,
       this.keepoutAreaViews,
@@ -249,6 +252,7 @@ export default class Renderer extends EventEmitter {
 
   getAddAreaHandler(RectangleViewFactory, PolygonViewFactor, areaViewsGroup, areaViews, collection) {
     return (model) => {
+      let view;
       if (model.shape === 'RECTANGLE') {
         view = RectangleViewFactory(areaViewsGroup, model);
       } else if (model.shape === 'POLYGON') {

@@ -3,7 +3,7 @@ import { Path }          from 'paper';
 import { Group }         from 'paper';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { getMidPoints }     from '../helpers';
+import { getMidPoints }     from '../helper';
 import { handleAttributes } from '../attributes';
 
 export default class AreaPolygonView extends EventEmitter2 {

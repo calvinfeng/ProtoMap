@@ -1,6 +1,6 @@
 export const MAP_NAME_FETCH_SUCCESS = 'MAP_NAME_FETCH_SUCCESS';
 export const MAP_NAME_FETCH_FAIL = 'MAP_NAME_FETCH_FAIL';
-export const MAP_IMAGE_FETCH_SUCCESS = 'MAP_NAME_FETCH_SUCCESS';
+export const MAP_IMAGE_FETCH_SUCCESS = 'MAP_IMAGE_FETCH_SUCCESS';
 export const MAP_IMAGE_FETCH_FAIL = 'MAP_IMAGE_FETCH_FAIL';
 
 const mapNameFetchSuccess = () => {
@@ -11,20 +11,29 @@ const mapNameFetchSuccess = () => {
 }
 
 const mapImageFetchSuccess = () => {
+  const imageElement = new Image();
+  imageElement.src = "https://phosgene.files.wordpress.com/2011/01/lost-temple.jpg";
+  const visualizationImageData = {
+    dataUrl: "https://phosgene.files.wordpress.com/2011/01/lost-temple.jpg",
+    imageElement: imageElement
+  };
   return {
     type: MAP_IMAGE_FETCH_SUCCESS,
-    mapImage: "https://phosgene.files.wordpress.com/2011/01/lost-temple.jpg"
+    mapImage: imageElement
   };
 }
 
 export const fetchDefaultMapName = function() {
   return function(dispatch) {
-    setTimeout(dispatch(mapNameFetchSuccess()),1000);
+    dispatch({
+      type: MAP_NAME_FETCH_SUCCESS,
+      mapId: '20161021map'
+    });
   };
 }
 
 export const fetchMapImage = function() {
   return function(dispatch) {
-    setTimeout(dispatch(mapImageFetchSuccess()), 1000);
+    dispatch(mapImageFetchSuccess());
   };
 }

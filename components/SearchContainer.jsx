@@ -56,15 +56,17 @@ class SearchContainer extends React.Component {
 
   render() {
     return (
-      <form onSubmit={this.__submitHandler} onClick={this.__clickHandler}>
-        <input width="400" onChange={this.__updateInputField}></input>
-        <input type="submit"></input>
-        <ul>
+      <div className="search-container">
+        <form onSubmit={this.__submitHandler}>
+          <input width="400" onChange={this.__updateInputField}></input>
+          <input type="submit"></input>
+          <div>Input value: {this.state.inputValue}</div>
+          <div>Count: {this.props.count}</div>
+        </form>
+        <ul onClick={this.__clickHandler}>
           {this.__printArtistNames()}
         </ul>
-        <div>Input value: {this.state.inputValue}</div>
-        <div>Count: {this.props.count}</div>
-      </form>
+      </div>
     )
   }
 }

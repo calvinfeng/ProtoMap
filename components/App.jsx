@@ -15,12 +15,10 @@ import Map             from './Map';
 class SpotifyApp extends React.Component {
   render() {
     return (
-      <div>
+      <div className="app-container">
         <SearchContainer/>
-        <DrawingPad/>
         <Map/>
       </div>
-
     );
   }
 }
