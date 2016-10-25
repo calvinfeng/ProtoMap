@@ -1,14 +1,22 @@
-import {Point}            from 'paper';
-import {Path}             from 'paper';
-import {Group}            from 'paper';
-import {EventEmitter2}    from 'eventemitter2';
-import {Matrix}           from 'paper';
+'use strict';
 
-import {handleAttributes} from '../attributes';
+// Copyright 2016 Fetch Robotics, Inc.
+// Author(s): Nadir Muzaffar
+
+// Thirdparty imports
+import { Point }            from 'paper';
+import { Path }             from 'paper';
+import { Group }            from 'paper';
+import { EventEmitter2 }    from 'eventemitter2';
+import { Matrix }           from 'paper';
+
+// Fetch imports
+import { handleAttributes }    from '../attributes';
 
 export default class AreaRectangleView extends EventEmitter2 {
     constructor(parentGroup, model, attributes) {
-        super({maxListeners: 0});
+        super({ maxListeners: 0 });
+
         this.handleChange = this.handleChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -35,23 +43,23 @@ export default class AreaRectangleView extends EventEmitter2 {
 
         const points = this.model.points;
 
-        this.rectanglePath = new Path(Object.assign({}, attributes, {segments: points}));
+        this.rectanglePath = new Path(Object.assign({}, attributes, { segments: points }));
         this.rectanglePath.on('mousedrag', this.handleMouseDragForRectangle);
         this.viewGroup.addChild(this.rectanglePath);
 
-        this.cornerHandleA = new Path.Circle(Object.assign({}, handleAttributes, {center: points[0]}));
+        this.cornerHandleA = new Path.Circle(Object.assign({}, handleAttributes, { center: points[0] }));
         this.cornerHandleA.on('mousedrag', this.handleMouseDragForCornerHandleA);
         this.viewGroup.addChild(this.cornerHandleA);
 
-        this.cornerHandleB = new Path.Circle(Object.assign({}, handleAttributes, {center: points[1]}));
+        this.cornerHandleB = new Path.Circle(Object.assign({}, handleAttributes, { center: points[1] }));
         this.cornerHandleB.on('mousedrag', this.handleMouseDragForCornerHandleB);
         this.viewGroup.addChild(this.cornerHandleB);
 
-        this.cornerHandleC = new Path.Circle(Object.assign({}, handleAttributes, {center: points[2]}));
+        this.cornerHandleC = new Path.Circle(Object.assign({}, handleAttributes, { center: points[2] }));
         this.cornerHandleC.on('mousedrag', this.handleMouseDragForCornerHandleC);
         this.viewGroup.addChild(this.cornerHandleC);
 
-        this.cornerHandleD = new Path.Circle(Object.assign({}, handleAttributes, {center: points[3]}));
+        this.cornerHandleD = new Path.Circle(Object.assign({}, handleAttributes, { center: points[3] }));
         this.cornerHandleD.on('mousedrag', this.handleMouseDragForCornerHandleD);
         this.viewGroup.addChild(this.cornerHandleD);
 
@@ -82,8 +90,11 @@ export default class AreaRectangleView extends EventEmitter2 {
         if (!e.modifiers.control && !e.modifiers.command) {
             return;
         }
+
         e.stop();
+
         this.triggerUpdateOnMouseUp = true;
+
         const mousePoint = this.viewGroup.globalToLocal(e.point);
         const origin = this.viewGroup.globalToLocal(new Point(0, 0));
         const delta = this.viewGroup.globalToLocal(e.delta).subtract(origin);
@@ -97,7 +108,8 @@ export default class AreaRectangleView extends EventEmitter2 {
         rotationMatrix.rotate(angle, center);
 
         const points = this.model.points.map(point => rotationMatrix.transform(point));
-        this.model.setProps({points});
+
+        this.model.setProps({ points });
     }
 
     handleMouseDragForRectangle(e) {
@@ -106,6 +118,7 @@ export default class AreaRectangleView extends EventEmitter2 {
         }
 
         e.stop();
+
         this.triggerUpdateOnMouseUp = true;
 
         const origin = this.viewGroup.globalToLocal(new Point(0, 0));
@@ -113,27 +126,13 @@ export default class AreaRectangleView extends EventEmitter2 {
 
         const points = this.model.points.map(point => point.add(delta));
 
-        /*
-            Proposed new changes by Calvin Feng
-         */
-        let isCollidingWithOtherViews = false;
-        for (let i = 0; i < this.parentGroup.children.length; i++) {
-            if (i !== this.viewGroup.index) {
-                let otherViewGroup = this.parentGroup.children[i];
-                otherViewGroup.children.forEach((otherPath) => {
-                    this.viewGroup.children.forEach((path) => {
-                        if (path.getIntersections(otherPath).length !== 0) {
-                            isCollidingWithOtherViews = true;
-                            console.log("colliding")
-                        }
-                    });
-                });
-            }
-        }
-        if (!isCollidingWithOtherViews) {
-            this.model.setProps({points});
-        }
+        this.model.setProps({ points });
     }
+
+    /*
+    Author: Calvin Feng
+    Validation will go into on('update') instead of onDrag
+    */
 
     handleMouseDragForCornerHandleA(e) {
         e.stop();
@@ -165,7 +164,8 @@ export default class AreaRectangleView extends EventEmitter2 {
         if (diffA.length === 0 && diffB.length === 0) {
             return;
         }
-        this.model.setProps({points});
+
+        this.model.setProps({ points });
     }
 
     handleMouseDragForCornerHandleB(e) {
@@ -196,7 +196,7 @@ export default class AreaRectangleView extends EventEmitter2 {
         const diffB = mousePointB.subtract(points[2].project(axisB));
 
         if (diffA.length !== 0 && diffB.length !== 0) {
-            this.model.setProps({points});
+            this.model.setProps({ points });
         }
     }
 
@@ -228,7 +228,7 @@ export default class AreaRectangleView extends EventEmitter2 {
         const diffB = mousePointB.subtract(points[1].project(axisB));
 
         if (diffA.length !== 0 && diffB.length !== 0) {
-            this.model.setProps({points});
+            this.model.setProps({ points });
         }
     }
 
@@ -260,7 +260,7 @@ export default class AreaRectangleView extends EventEmitter2 {
         const diffB = mousePointB.subtract(points[0].project(axisB));
 
         if (diffA.length !== 0 && diffB.length !== 0) {
-            this.model.setProps({points});
+            this.model.setProps({ points });
         }
     }
 
@@ -268,12 +268,15 @@ export default class AreaRectangleView extends EventEmitter2 {
         if (this.triggerUpdateOnMouseUp) {
             this.emit('update');
         }
+
         this.triggerUpdateOnMouseUp = false;
     }
 
     remove() {
         this.model.off('change', this.handleChange);
+
         this.viewGroup.remove();
+
         this.removeAllListeners();
     }
 }

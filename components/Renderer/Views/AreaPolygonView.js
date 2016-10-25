@@ -1,185 +1,229 @@
-import { Point }         from 'paper';
-import { Path }          from 'paper';
-import { Group }         from 'paper';
-import { EventEmitter2 } from 'eventemitter2';
+'use strict';
 
-import { getMidPoints }     from '../helper';
-import { handleAttributes } from '../attributes';
+// Copyright 2016 Fetch Robotics, Inc.
+// Author(s): Andrii Buts
+
+// Thirdparty imports
+import { Point }            from 'paper';
+import { Path }             from 'paper';
+import { Group }            from 'paper';
+import { EventEmitter2 }    from 'eventemitter2';
+
+// Fetch imports
+import { getMidPoints }        from '../helpers';
+import { handleAttributes }    from '../attributes';
 
 export default class AreaPolygonView extends EventEmitter2 {
-  constructor(parentGroup, model, attributes) {
-    super({ maxListeners: 0 });
+    constructor(parentGroup, model, attributes) {
+        super({ maxListeners: 0 });
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-    this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.handleMouseDragForPolygon = this.handleMouseDragForPolygon.bind(this);
-    this.handleMouseDragForCornerHandle = this.handleMouseDragForCornerHandle.bind(this);
-    this.handleMouseDragForActiveCornerHandle = this.handleMouseDragForActiveCornerHandle.bind(this);
-    this.handleMouseUpForActiveCornerHandle = this.handleMouseUpForActiveCornerHandle.bind(this);
-    this.handleClickForCornerHandle = this.handleClickForCornerHandle.bind(this);
-    this.handleMouseDownForSplitHandle = this.handleMouseDownForSplitHandle.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleClick = this.handleClick.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
+        this.handleMouseDragForPolygon = this.handleMouseDragForPolygon.bind(this);
+        this.handleMouseDragForCornerHandle = this.handleMouseDragForCornerHandle.bind(this);
+        this.handleMouseDragForActiveCornerHandle = this.handleMouseDragForActiveCornerHandle.bind(this);
+        this.handleMouseUpForActiveCornerHandle = this.handleMouseUpForActiveCornerHandle.bind(this);
+        this.handleClickForCornerHandle = this.handleClickForCornerHandle.bind(this);
+        this.handleMouseDownForSplitHandle = this.handleMouseDownForSplitHandle.bind(this);
 
-    this.triggerUpdateOnMouseUp = false;
-    this.model = model;
-    this.viewGroup = new Group();
-    this.viewGroup.on('mouseup', this.handleMouseUp);
-    this.viewGroup.on('click', this.handleClick);
-    this.parentGroup = parentGroup;
-    this.parentGroup.addChild(this.viewGroup);
+        this.triggerUpdateOnMouseUp = false;
+        this.model = model;
 
-    const points = this.model.points;
-    this.polygonPath = new Path(Object.assign({}, attributes, { segments: points}));
-    this.polygonPath.on('mousedrag', this.handleMouseDragForPolygon);
-    this.viewGroup.addChild(this.polygonPath);
+        this.viewGroup = new Group();
+        this.viewGroup.on('mouseup', this.handleMouseUp);
+        this.viewGroup.on('click', this.handleClick);
 
-    this.activeCornerHandle = null;
-    this.activeCornerPointIndex = null;
-    this.cornerHandlesGroup = new Group();
-    this.addCornerHandles(points);
-    this.splitHandlesGroup = new Group();
-    this.viewGroup.addChild(this.splitHandlesGroup);
-    this.viewGroup.addChild(this.cornerHandlesGroup);
-    this.addSplitHandles(points);
-    this.model.on('change', this.handleChange);
-  }
+        this.parentGroup = parentGroup;
+        this.parentGroup.addChild(this.viewGroup);
 
-  addCornerHandles(points) {
-    points.forEach((point) => {
-      const cornerHandle = new Path.Circle(Object.assign({}, handleAttributes, {
-        center: point
-      }));
-      cornerHandle.on('click', this.handleClickForCornerHandle);
-      cornerHandle.on('mousedrag', this.handleMouseDragForCornerHandle);
-      this.cornerHandlesGroup.addChild(cornerHandle);
-    });
-  }
+        const points = this.model.points;
 
-  replaceCornerHandles(points) {
-    this.cornerHandlesGroup.removeChildren();
-    this.addCornerHandles(points);
-  }
+        this.polygonPath = new Path(Object.assign({}, attributes, { segments: points }));
+        this.polygonPath.on('mousedrag', this.handleMouseDragForPolygon);
+        this.viewGroup.addChild(this.polygonPath);
 
-  addSplitHandles(points) {
-    getMidPoints(points).forEach((midPoint) => {
-      const splitHandle = new Path.Circle(Object.assign({}, handleAttributes, {
-        center: midPoint,
-        opacity: 0.7
-      }));
+        this.activeCornerHandle = null;
+        this.activeCornerPointIndex = null;
 
-      splitHandle.on('mousedown', this.handleMouseDownForSplitHandle);
+        this.cornerHandlesGroup = new Group();
+        this.addCornerHandles(points);
 
-      this.splitHandlesGroup.addChild(splitHandle);
-    });
-  }
+        this.splitHandlesGroup = new Group();
+        this.viewGroup.addChild(this.splitHandlesGroup);
 
-  replaceSplitHandles(points) {
-    this.splitHandlesGroup.removeChildren();
-    this.addSplitHandles(points);
-  }
+        // 'cornerHandlesGroup' should be added to the viewGroup after 'splitHandlesGroup', in this case if there
+        // will be several same points in the polygon the 'cornerHandle' always will be on the top
+        this.viewGroup.addChild(this.cornerHandlesGroup);
 
-  setActiveCornerHandle(handle, pointIndex) {
-    this.activeCornerHandle = handle;
-    this.activeCornerHandle.opacity = 1;
-    this.activeCornerPointIndex = pointIndex;
+        this.addSplitHandles(points);
 
-    this.activeCornerHandle.off('click');
-    this.activeCornerHandle.off('mousedrag');
-    this.activeCornerHandle.off('mousedown');
-
-    this.activeCornerHandle.on('mousedrag', this.handleMouseDragForActiveCornerHandle);
-    this.activeCornerHandle.on('mouseup', this.handleMouseUpForActiveCornerHandle);
-  }
-
-  handleChange(points) {
-    this.polygonPath.removeSegments();
-    this.polygonPath.addSegments(points);
-    this.replaceCornerHandles(points);
-    this.replaceSplitHandles(points);
-  }
-
-  handleClick(e) {
-    if ((!e.modifiers.control && !e.modifiers.command) || e.delta.length > 0) {
-      return;
+        this.model.on('change', this.handleChange);
     }
-    e.stop();
-    this.model.destroy();
-  }
 
-  handleMouseDragForPolygon(e) {
-    if (e.modifiers.control || e.modifiers.command) {
-      return;
+    addCornerHandles(points) {
+        points.forEach((point) => {
+            const cornerHandle = new Path.Circle(Object.assign({}, handleAttributes, {
+                center: point
+            }));
+
+            cornerHandle.on('click', this.handleClickForCornerHandle);
+            cornerHandle.on('mousedrag', this.handleMouseDragForCornerHandle);
+
+            this.cornerHandlesGroup.addChild(cornerHandle);
+        });
     }
-    e.stop();
-    this.triggerUpdateOnMouseUp = true;
-    const origin = this.viewGroup.globalToLocal(new Point(0, 0));
-    const delta = this.viewGroup.globalToLocal(e.delta).subtract(origin);
-    const points = this.model.points.map(point => point.add(delta));
-    this.model.setProps({ points });
-  }
 
-  handleMouseDragForCornerHandle(e) {
-    e.stop();
-    this.setActiveCornerHandle(e.target, e.target.index);
-  }
-
-  handleMouseDragForActiveCornerHandle(e) {
-    e.stop();
-    this.triggerUpdateOnMouseUp = true;
-    const origin = this.viewGroup.globalToLocal(new Point(0, 0));
-    const delta = this.viewGroup.globalToLocal(e.delta).subtract(origin);
-    const points = this.model.points.map((point, i) => {
-      if (i === this.activeCornerPointIndex) {
-        return point.add(delta);
-      }
-      return point;
-    });
-    // set props is responsible for changing the model
-    this.model.setProps({ points });
-  }
-
-  handleMouseUpForActiveCornerHandle() {
-    this.activeCornerHandle = null;
-    this.activeCornerPointIndex = null;
-  }
-
-  handleClickForCornerHandle(e) {
-    if (!e.modifiers.shift || this.model.points.length <= 3) {
-      return;
+    replaceCornerHandles(points) {
+        this.cornerHandlesGroup.removeChildren();
+        this.addCornerHandles(points);
     }
-    const handleIndex = e.target.index;
-    const points = [
-      ...this.model.points.slice(0, handleIndex),
-      ...this.model.points.slice(handleIndex + 1)
-    ];
-    this.model.setProps({ points });
-    this.emit('update');
-  }
 
-  handleMouseDownForSplitHandle(e) {
-    this.triggerUpdateOnMouseUp = true;
-    // Get 'newPointIndex' based on current 'SplitHandle' index in the 'splitHandlesGroup'
-    const newPointIndex = e.target.index + 1;
-    const handle = e.target;
-    const newPointX = handle.position.x;
-    const newPointY = handle.position.y;
-    const points = [
-      ...this.model.points.slice(0, newPointIndex),
-      new Point(newPointX, newPointY),
-      ...this.model.points.slice(newPointIndex)
-    ];
-    this.setActiveCornerHandle(handle, newPointIndex);
-    this.model.setProps({ points });
-  }
+    addSplitHandles(points) {
+        getMidPoints(points).forEach((midPoint) => {
+            const splitHandle = new Path.Circle(Object.assign({}, handleAttributes, {
+                center: midPoint,
+                opacity: 0.7
+            }));
 
-  handleMouseUp() {
-    if (this.triggerUpdateOnMouseUp) {
-      this.emit('update');
+            splitHandle.on('mousedown', this.handleMouseDownForSplitHandle);
+
+            this.splitHandlesGroup.addChild(splitHandle);
+        });
     }
-    this.triggerUpdateOnMouseUp = false;
-  }
 
-  remove() {
-    this.viewGroup.remove();
-  }
+    replaceSplitHandles(points) {
+        this.splitHandlesGroup.removeChildren();
+        this.addSplitHandles(points);
+    }
+
+    setActiveCornerHandle(handle, pointIndex) {
+        this.activeCornerHandle = handle;
+        this.activeCornerHandle.opacity = 1;
+        this.activeCornerPointIndex = pointIndex;
+
+        this.activeCornerHandle.off('click');
+        this.activeCornerHandle.off('mousedrag');
+        this.activeCornerHandle.off('mousedown');
+
+        this.activeCornerHandle.on('mousedrag', this.handleMouseDragForActiveCornerHandle);
+        this.activeCornerHandle.on('mouseup', this.handleMouseUpForActiveCornerHandle);
+    }
+
+    handleChange(points) {
+        this.polygonPath.removeSegments();
+        this.polygonPath.addSegments(points);
+
+        this.replaceCornerHandles(points);
+        this.replaceSplitHandles(points);
+    }
+
+    handleClick(e) {
+        if ((!e.modifiers.control && !e.modifiers.command) || e.delta.length > 0) {
+            return;
+        }
+
+        e.stop();
+
+        this.model.destroy();
+    }
+
+    handleMouseDragForPolygon(e) {
+        if (e.modifiers.control || e.modifiers.command) {
+            return;
+        }
+
+        e.stop();
+
+        this.triggerUpdateOnMouseUp = true;
+
+        const origin = this.viewGroup.globalToLocal(new Point(0, 0));
+        const delta = this.viewGroup.globalToLocal(e.delta).subtract(origin);
+
+        const points = this.model.points.map(point => point.add(delta));
+
+        this.model.setProps({ points });
+    }
+
+    handleMouseDragForCornerHandle(e) {
+        e.stop();
+
+        this.setActiveCornerHandle(e.target, e.target.index);
+    }
+
+    handleMouseDragForActiveCornerHandle(e) {
+        e.stop();
+
+        this.triggerUpdateOnMouseUp = true;
+
+        const origin = this.viewGroup.globalToLocal(new Point(0, 0));
+        const delta = this.viewGroup.globalToLocal(e.delta).subtract(origin);
+
+
+        const points = this.model.points.map((point, i) => {
+            if (i === this.activeCornerPointIndex) {
+                return point.add(delta);
+            }
+
+            return point;
+        });
+
+        this.model.setProps({ points });
+    }
+
+    handleMouseUpForActiveCornerHandle() {
+        this.activeCornerHandle = null;
+        this.activeCornerPointIndex = null;
+    }
+
+
+    handleClickForCornerHandle(e) {
+        if (!e.modifiers.shift || this.model.points.length <= 3) {
+            return;
+        }
+
+        const handleIndex = e.target.index;
+
+        const points = [
+            ...this.model.points.slice(0, handleIndex),
+            ...this.model.points.slice(handleIndex + 1)
+        ];
+
+        this.model.setProps({ points });
+        this.emit('update');
+    }
+
+    handleMouseDownForSplitHandle(e) {
+        this.triggerUpdateOnMouseUp = true;
+
+        // Get 'newPointIndex' based on current 'SplitHandle' index in the 'splitHandlesGroup'
+        const newPointIndex = e.target.index + 1;
+
+        const handle = e.target;
+
+        const newPointX = handle.position.x;
+        const newPointY = handle.position.y;
+
+        const points = [
+            ...this.model.points.slice(0, newPointIndex),
+            new Point(newPointX, newPointY),
+            ...this.model.points.slice(newPointIndex)
+        ];
+
+        this.setActiveCornerHandle(handle, newPointIndex);
+
+        this.model.setProps({ points });
+    }
+
+    handleMouseUp() {
+        if (this.triggerUpdateOnMouseUp) {
+            this.emit('update');
+        }
+
+        this.triggerUpdateOnMouseUp = false;
+    }
+
+    remove() {
+        this.viewGroup.remove();
+    }
 }

@@ -1,17 +1,23 @@
-import {EventEmitter2} from 'eventemitter2';
-import {Point}         from 'paper';
+'use strict';
+
+// Copyright 2016 Fetch Robotics, Inc.
+// Author(s): Nadir Muzaffar
+
+// Thirdparty imports
+import { EventEmitter2 } from 'eventemitter2';
+import { Point }         from 'paper';
 
 export default class AreaModel extends EventEmitter2 {
     constructor(data) {
-        super({maxListeners: 0});
+        super({ maxListeners: 0 });
 
         this.id = data.uuid;
         this.annotationType = data.annotation_type;
-        this.points = (data.points || []).map(({x, y}) => new Point(x, y));
+        this.points = (data.points || []).map(({ x, y }) => new Point(x, y));
         this.shape = data.shape;
     }
 
-    setProps({points}) {
+    setProps({ points }) {
         this.points = points.map(point => new Point(point));
         this.emit('change', points);
     }
@@ -27,10 +33,10 @@ export default class AreaModel extends EventEmitter2 {
             annotation_type: this.annotationType,
             shape: this.shape,
             coordinates: {
-                north_east: {x: 0, y: 0},
-                south_west: {x: 0.1, y: 0.1}
+                north_east: { x: 0, y: 0 },
+                south_west: { x: 0.1, y: 0.1 }
             },
-            points: this.points.map(({x, y}) => ({x, y}))
+            points: this.points.map(({ x, y }) => ({ x, y }))
         };
     }
 }

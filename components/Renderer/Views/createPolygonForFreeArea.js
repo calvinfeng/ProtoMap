@@ -1,10 +1,14 @@
-"use strict";
+'use strict';
 
-import AreaPolygonView from './AreaPolygonView';
-import { freeAreaAttributes } from '../attributes';
+// Copyright 2016 Fetch Robotics, Inc.
+// Author(s): Andrii Buts
 
- function createPolygonForFreeArea(parentGroup, model) {
-   return new AreaPolygonView(parentGroup, model, freeAreaAttributes);
- }
+// Fetch imports
+import AreaPolygonView           from './AreaPolygonView';
+import { freeAreaAttributes }    from '../attributes';
 
- export default createPolygonForFreeArea;
+function createPolygonForFreeArea(parentGroup, model) {
+    return new AreaPolygonView(parentGroup, model, freeAreaAttributes);
+}
+
+export default createPolygonForFreeArea;
