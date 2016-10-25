@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ffa0883f-d9a3-4e7b-bf5e-8961d9030ec1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/components/Renderer/Models/AreaModel.js" afterPath="$PROJECT_DIR$/components/Renderer/Models/AreaModel.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/components/Renderer/Renderer.js" afterPath="$PROJECT_DIR$/components/Renderer/Renderer.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/components/Renderer/Tools/CreateAreaRectangleTool.js" afterPath="$PROJECT_DIR$/components/Renderer/Tools/CreateAreaRectangleTool.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/components/Renderer/Views/AreaRectangleView.js" afterPath="$PROJECT_DIR$/components/Renderer/Views/AreaRectangleView.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="spotcore.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -26,7 +24,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="AreaRectangleView.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AreaRectangleView.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/components/Renderer/Views/AreaRectangleView.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="558">
@@ -34,6 +32,16 @@
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="54">
+              <caret line="3" column="5" selection-start-line="3" selection-start-column="5" selection-end-line="3" selection-end-column="5" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -90,6 +98,7 @@
         <option value="$PROJECT_DIR$/components/Renderer/Renderer.js" />
         <option value="$PROJECT_DIR$/components/Renderer/Tools/CreateAreaRectangleTool.js" />
         <option value="$PROJECT_DIR$/components/Renderer/Views/AreaRectangleView.js" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -816,12 +825,12 @@
       <option name="presentableId" value="Default" />
       <updated>1477353244227</updated>
       <workItem from="1477353246572" duration="322000" />
-      <workItem from="1477353668798" duration="4832000" />
+      <workItem from="1477353668798" duration="5199000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5154000" />
+    <option name="totallyTimeSpent" value="5521000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
@@ -975,6 +984,14 @@
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="5" selection-start-line="3" selection-start-column="5" selection-end-line="3" selection-end-column="5" />
+          <folding />
         </state>
       </provider>
     </entry>
