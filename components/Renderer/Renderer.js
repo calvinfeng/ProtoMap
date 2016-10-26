@@ -13,7 +13,7 @@ import uuid             from 'node-uuid';
 import EventEmitter     from 'eventemitter2';
 
 // Fetch
-import Collection                        from './Collections';
+import Collection                        from './Collections/Collection';
 
 import AreaModel                         from './Models/AreaModel';
 import NodeModel                         from './Models/NodeModel';
@@ -387,13 +387,11 @@ export default class Renderer extends EventEmitter {
     getAddAreaHandler(RectangleViewFactory, PolygonViewFactory, areaViewsGroup, areaViews, collection) {
         return (model) => {
             let view;
-
             if (model.shape === 'RECTANGLE') {
                 view = RectangleViewFactory(areaViewsGroup, model);
             } else if (model.shape === 'POLYGON') {
                 view = PolygonViewFactory(areaViewsGroup, model);
             }
-
             areaViews[model.id] = view;
 
             view.on('update', this.handleUpdateAnnotationData);

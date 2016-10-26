@@ -48,6 +48,7 @@ class Map extends React.Component {
   }
 
   handleEnableViewControlsTool() {
+    console.log("Enabled control tool");
     if (this.renderer) {
       this.renderer.enableViewControlsTool();
     }
@@ -89,6 +90,7 @@ class Map extends React.Component {
 
   handleUpdateAnnotationData(annotationData) {
     const mapData = { annotations: annotationData };
+    console.log("updated annotation data is dispatching to server");
     //return this.props.dispatchMapDataUpdate(this.props.mapId, mapData);
   }
 

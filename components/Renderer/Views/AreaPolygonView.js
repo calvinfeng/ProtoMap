@@ -147,7 +147,6 @@ export default class AreaPolygonView extends EventEmitter2 {
 
     handleMouseDragForCornerHandle(e) {
         e.stop();
-
         this.setActiveCornerHandle(e.target, e.target.index);
     }
 
@@ -188,7 +187,6 @@ export default class AreaPolygonView extends EventEmitter2 {
             ...this.model.points.slice(0, handleIndex),
             ...this.model.points.slice(handleIndex + 1)
         ];
-
         this.model.setProps({ points });
         this.emit('update');
     }
