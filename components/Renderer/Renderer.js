@@ -8,6 +8,7 @@ import { PaperScope }   from 'paper';
 import { Group }        from 'paper';
 import { Raster }       from 'paper';
 import { Point }        from 'paper';
+import { Path }         from 'paper';
 import { HitResult }    from 'paper';
 import uuid             from 'node-uuid';
 import EventEmitter     from 'eventemitter2';
@@ -50,12 +51,15 @@ export default class Renderer extends EventEmitter {
         // bind methods to instance
         this.handleTranslateAndRotateView = this.handleTranslateAndRotateView.bind(this);
         this.handleZoom = this.handleZoom.bind(this);
-        this.handleContextMenu = this.handleContextMenu.bind(this)
+        this.handleContextMenu = this.handleContextMenu.bind(this);
         this.handleAddNode = this.handleAddNode.bind(this);
         this.handleRemoveNode = this.handleRemoveNode.bind(this);
         this.handleAddEdge = this.handleAddEdge.bind(this);
         this.handleRemoveEdge = this.handleRemoveEdge.bind(this);
         this.handleUpdateAnnotationData = this.handleUpdateAnnotationData.bind(this);
+        this.detectCollision = this.detectCollision.bind(this);
+        this.isInsideKeepoutArea = this.isInsideKeepoutArea.bind(this);
+        this.rayCastingValidation = this.rayCastingValidation.bind(this);
 
         this.onUpdateAnnotationData = onUpdateAnnotationData;
         this.canvasElement = canvasElement;
@@ -592,7 +596,7 @@ export default class Renderer extends EventEmitter {
             }
         });
 
-        edgeView.viewGroup.on('mousedrag', e => {
+        edgeView.viewGroup.on('mousedrag', (e) => {
             if (!splitNode) {
                 return;
             }
@@ -618,15 +622,110 @@ export default class Renderer extends EventEmitter {
     }
 
     handleUpdateAnnotationData() {
+        // Calvin Feng =========================================================
+        this.detectCollision();
+        // =====================================================================
         const annotationData = Object.assign({}, this.annotationData, {
             free_zones: this.freeAreaCollection.toJSON(),
             keepout_zones: this.keepoutAreaCollection.toJSON(),
             nodes: this.nodeCollection.toJSON(),
             edges: this.edgeCollection.toJSON()
         });
-
         this.onUpdateAnnotationData(annotationData);
     }
+
+    // Calvin Feng =============================================================
+    // =========================================================================
+    // =========================================================================
+    // Currently using intersection, the next step is to use Rectangle.contain(points)
+    detectCollision() {
+        // first check edgeGroup for lanes
+        let self = this;
+        this.edgeGroup.children.forEach((edgeViewGroup) => {
+            let edgeModel = self.edgeCollection.getModel(edgeViewGroup.modelId);
+            let edgePaths = edgeViewGroup.children;
+            let isColliding = false;
+
+            // There are usually 3 paths, break early if we find one that is intersecting
+            for (let i = 0; i < edgePaths.length; i++) {
+                let currentEdgePath = edgePaths[i];
+                if (this.isCollidingWithKeepoutArea(currentEdgePath)) {
+                    isColliding = true;
+                    break;
+                }
+            }
+
+            if (isColliding) {
+                edgeModel.setInvalid();
+            } else {
+                let sourceNodeModel = self.nodeCollection.getModel(edgeModel.sourceId);
+                if (this.isInsideKeepoutArea(sourceNodeModel)) {
+                    edgeModel.setInvalid();
+                } else {
+                    edgeModel.setValid();
+                }
+            }
+        });
+    }
+
+    isCollidingWithKeepoutArea(edgePath) {
+        let keepoutAreaViewGroups = this.keepoutAreaGroup.children
+        for (let i = 0; i < keepoutAreaViewGroups.length; i++) {
+            let otherPaths = this.extractPathsFromRootGroup(keepoutAreaViewGroups[i]);
+            for (let j = 0; j < otherPaths.length; j++) {
+                if (edgePath.getIntersections(otherPaths[j]).length !== 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    extractPathsFromRootGroup(root) {
+        let queue = [root];
+        let paths = [];
+        while (queue.length > 0) {
+            let currentNode = queue.shift();
+            if (currentNode.className === 'Group') {
+                currentNode.children.forEach((child) => {
+                    queue.push(child);
+                })
+            } else if (currentNode.className === 'Path') {
+                paths.push(currentNode);
+            }
+        }
+        return paths;
+    }
+
+    isInsideKeepoutArea(sourceNodeModel) {
+        let keepoutAreaViewGroups = this.keepoutAreaGroup.children
+        let sourcePoint = sourceNodeModel.point;
+        for (let i = 0; i < keepoutAreaViewGroups.length; i++) {
+            if (this.rayCastingValidation(sourcePoint, keepoutAreaViewGroups[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    rayCastingValidation(point, areaViewGroup) {
+        //let rasterWidth = this.visualizationRaster.width;
+        let castingRay = new Path({
+            strokeWidth: 1,
+            strokeColor: "black",
+            segments: [point, new Point(0, 0)],
+        });
+        let otherPaths = this.extractPathsFromRootGroup(areaViewGroup);
+        let intersectionCount = 0;
+        otherPaths.forEach((otherPath) => {
+            intersectionCount += castingRay.getIntersections(otherPath).length;
+        })
+        // if number of intersection is odd, then it's inside a polygon
+        return intersectionCount % 2 === 1;
+    }
+    // =========================================================================
+    // =========================================================================
+    // =========================================================================
 
     handleContextMenu(e) {
         e.preventDefault();

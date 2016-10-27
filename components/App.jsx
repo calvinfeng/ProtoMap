@@ -9,22 +9,25 @@ import rootReducer     from '../reducers/rootReducer';
 
 // Components
 import SearchContainer from './SearchContainer';
-import DrawingPad      from './DrawingPad';
 import Map             from './Map';
 
 class SpotifyApp extends React.Component {
-  render() {
-    return (
-      <div className="app-container">
-        <SearchContainer/>
-        <Map/>
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div className="app-container">
+                <SearchContainer />
+                <Map />
+            </div>
+        );
+    }
 }
 
 const store = createStore(rootReducer, applyMiddleware(thunkMiddleware));
-document.addEventListener("DOMContentLoaded", function() {
-  ReactDOM.render(<Provider store={store}><SpotifyApp/></Provider>,
-    document.getElementById("application"));
-});
+document.addEventListener('DOMContentLoaded',
+    function() {
+        ReactDOM.render(
+            <Provider store={store}><SpotifyApp /></Provider>,
+            document.getElementById('application')
+        );
+    }
+);

@@ -1,9 +1,5 @@
-'use strict';
-
-// Copyright 2016 Fetch Robotics, Inc.
-// Author(s): Andrii Buts
-
 // Thirdparty imports
+import React                from 'react';
 import { Point }            from 'paper';
 import { Path }             from 'paper';
 import { Group }            from 'paper';
@@ -14,13 +10,15 @@ import { getMidPoints }        from '../helpers';
 import { handleAttributes }    from '../attributes';
 
 export default class AreaPolygonView extends EventEmitter2 {
-    constructor(parentGroup, model, attributes) {
+    constructor(parentGroup, model, attributes, dispatchOpenPopup, popupComponent, contextMenuComponent) {
         super({ maxListeners: 0 });
 
         this.handleChange = this.handleChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
         this.handleMouseDragForPolygon = this.handleMouseDragForPolygon.bind(this);
+        this.handleMouseUpForPolygon = this.handleMouseUpForPolygon.bind(this);
+
         this.handleMouseDragForCornerHandle = this.handleMouseDragForCornerHandle.bind(this);
         this.handleMouseDragForActiveCornerHandle = this.handleMouseDragForActiveCornerHandle.bind(this);
         this.handleMouseUpForActiveCornerHandle = this.handleMouseUpForActiveCornerHandle.bind(this);
@@ -36,11 +34,15 @@ export default class AreaPolygonView extends EventEmitter2 {
 
         this.parentGroup = parentGroup;
         this.parentGroup.addChild(this.viewGroup);
+        this.dispatchOpenPopup = dispatchOpenPopup;
+        this.popupComponent = popupComponent;
+        this.contextMenuComponent = contextMenuComponent;
 
         const points = this.model.points;
 
         this.polygonPath = new Path(Object.assign({}, attributes, { segments: points }));
         this.polygonPath.on('mousedrag', this.handleMouseDragForPolygon);
+        this.polygonPath.on('mouseup', this.handleMouseUpForPolygon);
         this.viewGroup.addChild(this.polygonPath);
 
         this.activeCornerHandle = null;
@@ -59,6 +61,18 @@ export default class AreaPolygonView extends EventEmitter2 {
         this.addSplitHandles(points);
 
         this.model.on('change', this.handleChange);
+    }
+
+    get popupContent() {
+        return (
+            <this.popupComponent name={this.model.id} />
+        );
+    }
+
+    get contextMenuContent() {
+        return (
+            <this.contextMenuComponent name={this.model.id} deleteHandler={() => this.model.destroy()} />
+        );
     }
 
     addCornerHandles(points) {
@@ -129,7 +143,7 @@ export default class AreaPolygonView extends EventEmitter2 {
     }
 
     handleMouseDragForPolygon(e) {
-        if (e.modifiers.control || e.modifiers.command) {
+        if (e.modifiers.control || e.modifiers.command || e.event.button !== 0) {
             return;
         }
 
@@ -145,8 +159,23 @@ export default class AreaPolygonView extends EventEmitter2 {
         this.model.setProps({ points });
     }
 
+    handleMouseUpForPolygon(e) {
+        if (e.delta.length > 0) {
+            return;
+        }
+
+        e.stop();
+
+        const annotationType = this.model.annotationType;
+        const annotationId = this.model.id;
+        const isContextMenu = e.event.button === 2; // is right click
+
+        this.dispatchOpenPopup(annotationType, annotationId, e.point, isContextMenu);
+    }
+
     handleMouseDragForCornerHandle(e) {
         e.stop();
+
         this.setActiveCornerHandle(e.target, e.target.index);
     }
 
@@ -157,8 +186,6 @@ export default class AreaPolygonView extends EventEmitter2 {
 
         const origin = this.viewGroup.globalToLocal(new Point(0, 0));
         const delta = this.viewGroup.globalToLocal(e.delta).subtract(origin);
-
-
         const points = this.model.points.map((point, i) => {
             if (i === this.activeCornerPointIndex) {
                 return point.add(delta);
@@ -187,6 +214,7 @@ export default class AreaPolygonView extends EventEmitter2 {
             ...this.model.points.slice(0, handleIndex),
             ...this.model.points.slice(handleIndex + 1)
         ];
+
         this.model.setProps({ points });
         this.emit('update');
     }

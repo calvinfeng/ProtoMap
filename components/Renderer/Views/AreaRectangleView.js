@@ -33,7 +33,7 @@ export default class AreaRectangleView extends EventEmitter2 {
         this.triggerUpdateOnMouseUp = false;
         this.model = model;
 
-        this.viewGroup = new Group();
+        this.viewGroup = new Group({id: model.id});
         this.viewGroup.on('mouseup', this.handleMouseUp);
         this.viewGroup.on('mousedrag', this.handleMouseDragForViewGroup);
         this.viewGroup.on('click', this.handleClick);

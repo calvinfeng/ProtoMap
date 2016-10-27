@@ -54,7 +54,7 @@ export default class EdgeView extends EventEmitter2 {
         this.targetNodeModel = targetNodeModel;
         this.edgeLength = 0.01;
 
-        this.viewGroup = new Group();
+        this.viewGroup = new Group({modelId: edgeModel.id});
         this.viewGroup.on('mouseup', this.handleMouseUp);
         this.viewGroup.on('mousedrag', this.handleMouseDrag);
         this.viewGroup.on('mouseenter', this.handleMouseEnter);
@@ -81,6 +81,9 @@ export default class EdgeView extends EventEmitter2 {
 
         this.sourceNodeModel.on('change', this.handleChange);
         this.targetNodeModel.on('change', this.handleChange);
+        // Calvin Feng =========================================================
+        this.edgeModel.on('change', this.handleChange);
+        // =====================================================================
     }
 
     handleChange() {
@@ -98,6 +101,13 @@ export default class EdgeView extends EventEmitter2 {
             this.inflationPath.scale(new Point(edgeLength / this.edgeLength, 1));
             this.edgeLength = edgeLength;
             this.inflationPath.rotation = linePathVector.angle;
+            // Calvin Feng =====================================================
+            if (this.edgeModel.isValid) {0
+                this.inflationPath.fillColor = '#287DA5';
+            } else {
+                this.inflationPath.fillColor = '#ff0000';
+            }
+            // =================================================================
         }
 
         this.linePath.removeSegments();

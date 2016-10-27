@@ -30,7 +30,7 @@ export default class NodeView extends EventEmitter2 {
         this.model = model;
 
         this.point = model.point;
-        this.viewGroup = new Group({ name: model.id });
+        this.viewGroup = new Group({id: model.id});
 
         this.viewGroup.on('mouseup', this.handleMouseUp);
         this.viewGroup.on('mousedrag', this.handleMouseDragForViewGroup);

@@ -15,6 +15,9 @@ export default class AreaModel extends EventEmitter2 {
         this.annotationType = data.annotation_type;
         this.points = (data.points || []).map(({ x, y }) => new Point(x, y));
         this.shape = data.shape;
+        // Calvin Feng =========================================================
+        this.isValid = true;
+        // =====================================================================
     }
 
     setProps({ points }) {

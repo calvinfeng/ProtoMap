@@ -14,6 +14,7 @@ export default class EdgeModel extends EventEmitter2 {
         this.id = data.uuid;
         this.sourceId = data.source_uuid;
         this.targetId = data.target_uuid;
+        this.isValid = true;
     }
 
     setProps({ sourceId, targetId }) {
@@ -21,6 +22,20 @@ export default class EdgeModel extends EventEmitter2 {
         this.targetId = targetId;
         this.emit('change', this.sourceId, this.targetId);
     }
+
+    // =========================================================================
+    // Calvin Feng =============================================================
+    setInvalid() {
+        this.isValid = false;
+        this.emit('change', this.sourceId, this.targetId);
+    }
+
+    setValid() {
+        this.isValid = true;
+        this.emit('change', this.sourceId, this.targetId);
+    }
+    // =========================================================================
+    // =========================================================================
 
     destroy() {
         this.emit('destroy', this); // do this before removing all listeners so they get the event first

@@ -20,6 +20,13 @@ export default class NodeModel extends EventEmitter2 {
         this.emit('change', this.point);
     }
 
+    // Calvin Feng =============================================================
+    setCollisionStatus(isColliding) {
+        this.isValid = !isColliding;
+        this.emit('change', this.points);
+    }
+    // =========================================================================
+
     destroy() {
         this.emit('destroy', this); // do this before removing all listeners so they get the event first
         this.removeAllListeners();
